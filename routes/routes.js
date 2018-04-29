@@ -26,7 +26,7 @@ var appRouter = function (app)
     app.get ("/headlines", function (req, res)
     {
         var headlines = [];
-        let sql = "SELECT h.hl_id, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source FROM newsDB.headlines AS h, newsDB.articles AS a WHERE h.hl_id = a.fk_hl_id ORDER BY h.hl_datetime DESC";
+        let sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source FROM newsDB.headlines AS h, newsDB.articles AS a WHERE h.hl_id = a.fk_hl_id ORDER BY h.hl_datetime DESC";
 
         connection.query (sql, (error, results, fields) =>
         {
@@ -35,6 +35,8 @@ var appRouter = function (app)
             for (var i in results)
             {
                 headlines.push ({
+                  date       : results[i].hl_date,
+                  time       : results[i].hl_time,
                   datetime   : results[i].hl_datetime,
                   headline   : results[i].hl_headline,
                   a_headline : results[i].article_headline,
