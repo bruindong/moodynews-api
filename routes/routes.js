@@ -81,7 +81,39 @@ var appRouter = function (app)
         res.status(200).send (1);
     });
 
+    app.post ("/add_headline_og", function (req,res)
+    {
+        var pHeadline           = req.body.headline;
+        var pArticleHeadline    = req.body.a_headline;
+        var pArticleURL         = req.body.a_url;
+        var pArticleSource      = req.body.a_source;
 
+        var pArticleFavicon     = req.body.a_favicon;
+        var pArticleThumbnail   = req.body.a_thumbnail;
+        var pArticleDescription = req.body.a_description;
+
+
+        let sql1 = "INSERT INTO newsDB.headlines (hl_datetime, hl_headline) VALUES (NOW(),?)";
+        let val1 = [pHeadline];
+        connection.query(sql1, val1, (error, results, fields) =>
+        {
+            if (error) { return console.error(error.message); }
+
+            headline_id = results.insertId;
+            console.log (headline_id);
+
+            let sql2 = "INSERT INTO newsDB.articles (fk_hl_id, article_url, article_headline, article_source, article_description, article_favicon_url, article_thumbnail_url) VALUES (?,?,?,?,?,?,?)";
+            let val2 = [headline_id, pArticleURL, pArticleHeadline, pArticleSource, pArticleDescription, pArticleFavicon, pArticleThumbnail];
+            connection.query(sql2, val2, (error, results, fields) =>
+            {
+                if (error) { return console.error(error.message); }
+
+                console.log (results.insertId);
+            });
+        });
+
+        res.status(200).send (1);
+    });
 
 }
 
