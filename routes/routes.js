@@ -35,6 +35,7 @@ var appRouter = function (app)
             for (var i in results)
             {
                 headlines.push ({
+                  headline_id     : results[i].hl_id,
                   date            : results[i].hl_date,
                   time            : results[i].hl_time,
                   datetime        : results[i].hl_datetime,
