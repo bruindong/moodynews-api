@@ -56,7 +56,10 @@ var appRouter = function (app)
     app.get ("/headlines_with_moods", function (req, res)
     {
         var headlines = [];
-        let sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '3DA874A1-BB63-47FE-BD64-AA12273C45F4' ORDER BY h.hl_datetime DESC LIMIT 10";
+        var sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '";
+
+        sql = sql + req.query.user_udid + "'"
+        sql = sql + " ORDER BY h.hl_datetime DESC LIMIT 10"
 
         connection.query (sql, (error, results, fields) =>
         {
