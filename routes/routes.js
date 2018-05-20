@@ -56,7 +56,7 @@ var appRouter = function (app)
     app.get ("/headlines_with_moods", function (req, res)
     {
         var headlines = [];
-        var sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '";
+        var sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.fk_hl_id, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '";
 
         sql = sql + req.query.user_udid + "'"
         sql = sql + " ORDER BY h.hl_datetime DESC LIMIT 10"
@@ -79,6 +79,7 @@ var appRouter = function (app)
                   a_description   : results[i].article_description,
                   a_favicon_url   : results[i].article_favicon_url,
                   a_thumbnail_url : results[i].article_thumbnail_url,
+                  hl_id           : results[i].fk_hl_id,
                   mood_value      : results[i].mood_value,
                   avg_mood_value  : results[i].avg_mood_value
                 });
@@ -151,6 +152,41 @@ var appRouter = function (app)
         res.status(200).send (1);
     });
 
+    app.post ("/update_mood", function (req,res)
+    {
+        var pHeadlineID = req.body.hl_id;
+        var pUserUDID   = req.body.user_udid;
+        var pMoodValue  = req.body.mood_value;
+
+
+        let sql1 = "UPDATE newsDB.moods SET mood_value = ? WHERE fk_hl_id = ? AND user_udid = ?";
+        //let sql1 = "UPDATE newsDB.moods SET mood_value = " + pMoodValue + " WHERE fk_hl_id = " + pHeadlineID + " AND user_udid = '" + pUserUDID + "'";
+        let val1 = [pMoodValue, pHeadlineID, pUserUDID];
+        connection.query(sql1, val1, (error, results, fields) =>
+        //connection.query(sql1, (error, results) =>
+        {
+            if (error) { return console.error(error.message); }
+        });
+
+        res.status(200).send (1);
+    });
+
+    app.post ("/add_mood", function (req,res)
+    {
+        var pHeadlineID = req.body.hl_id;
+        var pUserUDID   = req.body.user_udid;
+        var pMoodValue  = req.body.mood_value;
+
+
+        let sql1 = "INSERT INTO newsDB.moods (fk_hl_id, user_udid, mood_value) VALUES (?, ?, ?)";
+        let val1 = [pHeadlineID, pUserUDID, pMoodValue];
+        connection.query(sql1, val1, (error, results, fields) =>
+        {
+            if (error) { return console.error(error.message); }
+        });
+
+        res.status(200).send (1);
+    });
 }
 
 module.exports = appRouter;
