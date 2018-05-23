@@ -56,7 +56,7 @@ var appRouter = function (app)
     app.get ("/headlines_with_moods", function (req, res)
     {
         var headlines = [];
-        var sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.fk_hl_id, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '";
+        var sql = "SELECT h.hl_id, DATE_FORMAT(hl_datetime, '%l:%i %p') as hl_time, DATE_FORMAT(hl_datetime, '%m/%d/%y') as hl_date, h.hl_datetime, h.hl_headline, a.article_headline, a.article_url, a.article_source, a.article_description, a.article_favicon_url, a.article_thumbnail_url, m.fk_hl_id, m.mood_value, (SELECT AVG(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as avg_mood_value, (SELECT COUNT(mood_value) FROM newsDB.moods WHERE fk_hl_id = h.hl_id GROUP BY fk_hl_id) as count_mood_value FROM newsDB.headlines as h LEFT JOIN newsDB.articles as a ON h.hl_id = a.fk_hl_id LEFT JOIN newsDB.moods as m ON h.hl_id = m.fk_hl_id and m.user_udid = '";
 
         sql = sql + req.query.user_udid + "'"
         sql = sql + " ORDER BY h.hl_datetime DESC LIMIT 10"
@@ -68,20 +68,21 @@ var appRouter = function (app)
             for (var i in results)
             {
                 headlines.push ({
-                  headline_id     : results[i].hl_id,
-                  date            : results[i].hl_date,
-                  time            : results[i].hl_time,
-                  datetime        : results[i].hl_datetime,
-                  headline        : results[i].hl_headline,
-                  a_headline      : results[i].article_headline,
-                  a_url           : results[i].article_url,
-                  a_source        : results[i].article_source,
-                  a_description   : results[i].article_description,
-                  a_favicon_url   : results[i].article_favicon_url,
-                  a_thumbnail_url : results[i].article_thumbnail_url,
-                  hl_id           : results[i].fk_hl_id,
-                  mood_value      : results[i].mood_value,
-                  avg_mood_value  : results[i].avg_mood_value
+                  headline_id      : results[i].hl_id,
+                  date             : results[i].hl_date,
+                  time             : results[i].hl_time,
+                  datetime         : results[i].hl_datetime,
+                  headline         : results[i].hl_headline,
+                  a_headline       : results[i].article_headline,
+                  a_url            : results[i].article_url,
+                  a_source         : results[i].article_source,
+                  a_description    : results[i].article_description,
+                  a_favicon_url    : results[i].article_favicon_url,
+                  a_thumbnail_url  : results[i].article_thumbnail_url,
+                  hl_id            : results[i].fk_hl_id,
+                  mood_value       : results[i].mood_value,
+                  avg_mood_value   : results[i].avg_mood_value,
+                  count_mood_value : results[i].count_mood_value
                 });
             }
 
